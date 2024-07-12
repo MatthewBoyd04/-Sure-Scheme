@@ -9,7 +9,7 @@ static uint32_t startTime = 0;
 
 //--Motor Control--//
 #define PULSE_X 3
-#define DIR_X 8
+#define DIR_X 7
 #define DLY 2500 //1RPS // 60RPM
 #define NUMPULSES 200
 #define DIR1 0 // 1 = cw / 0 = ccw
@@ -34,6 +34,8 @@ void setup() {
   pinMode(DIR_X,OUTPUT);
   digitalWrite(PULSE_X, 0);
   digitalWrite(DIR_X, DIR1);
+  digitalWrite(9,0); //only for machine testing
+  digitalWrite(4,0); //for machine testing
   
 
 
@@ -94,8 +96,9 @@ void loop() {
       {
         if (startTime == 0)
         {
-          startTime += last_conversion_time;
+          startTime = last_conversion_time;
         }
+
         // === Read acceleromter data === //
         Wire.beginTransmission(ADXL345);
         Wire.write(0x32); // Start with register 0x32 (ACCEL_XOUT_H)
@@ -107,7 +110,17 @@ void loop() {
         Y_out = Y_out/128;
         Z_out = ( Wire.read()| Wire.read() << 8); // Z-axis value
         Z_out = Z_out/128;
-        uint32_t sendTime = last_conversion_time - startTime;
+
+        unsigned long x = micros();
+        unsigned long sendTime = x - startTime;
+        unsigned long limit = 4000000;
+        
+        if (sendTime > limit)
+        {
+          speed = 0;
+        }
+
+        //Stop serial, change to array and batch send
         Serial.print(X_out); 
         Serial.print(",");
         Serial.print(Y_out); 

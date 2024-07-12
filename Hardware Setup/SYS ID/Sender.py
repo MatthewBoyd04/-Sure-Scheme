@@ -3,7 +3,7 @@ import csv
 import time 
 
 
-arduino = serial.Serial(port='/dev/ttyACM0', baudrate=115200, timeout=.1)
+arduino = serial.Serial(port='/dev/ttyUSB1', baudrate=115200, timeout=.1)
 
 def set_motor_speed(speed):
     arduino.write(f"{speed}\n".encode())
