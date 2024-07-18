@@ -1,5 +1,5 @@
 bool ready = false;
-String ID = "Motor_Arduino:";
+String ID = "Motor_Arduino: ";
 
 void send_message(String msg)
 {

@@ -60,7 +60,23 @@ motor_ready = False
 while (data_ready == False) & (motor_ready == False):
     data = data_arduino.readline().decode('utf-8', errors='ignore').strip()
     motor = motor_arduino.readline().decode('utf-8', errors='ignore').strip()
+    if data != "": 
+        print(data)
+        dsplit = data.split(" ")
+        if dsplit(1) == "START":
+            data_ready = True
+    if motor != "":
+        print(motor)
+        msplit = data.split(" ")
+        if msplit(1) == "START":
+            motor_ready = True
 
+print("Pi: Recieved Code Ready")
+
+
+    
+
+    
     
 
 

@@ -1,6 +1,6 @@
 
 bool ready = false;
-String ID = "Data_Arduino:";
+String ID = "Data_Arduino: ";
 
 void send_message(String msg)
 {
