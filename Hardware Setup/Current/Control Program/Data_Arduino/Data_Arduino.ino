@@ -28,7 +28,7 @@ void controller_checks(){
     }
   }
   delay(1000);
-  send_message("Proceeding to loop");
+  send_message("START");
   
 }
 
