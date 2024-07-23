@@ -1,0 +1,95 @@
+Amy Johnson Building CNC Wiring 'Diagram'
+
+Motor X1(wall Side Motor) 
+Pul+ -> SGNL (Gry Cable -> BB Pul+) 
+Pul- -> GND (Gry Cable -> BB Ground)
+Dir+ -> SGNL (Gry Cable -> BB Dir+) 
+Dir- -> GND (Gry Cable -> Pul-)
+ENA+ -> Floating
+ENA- -> Floating 
+ALM+ -> Floating
+ALM- -> Floating
+GND  -> GND (Blk Cable -> PSU)
+VDC  -> PWR (Red Cable -> PSU)
+
+Motor X2(Door Side Motor) 
+Pul+ -> SGNL (Gry Cable -> BB Pul+) 
+Pul- -> GND (Gry Cable -> BB Ground)
+Dir+ -> SGNL (Gry Cable -> BB Dir+) 
+Dir- -> GND (Gry Cable -> Pul-)
+ENA+ -> Floating
+ENA- -> Floating 
+ALM+ -> Floating
+ALM- -> Floating
+GND  -> GND (Blk Cable -> PSU)
+VDC  -> PWR (Red Cable -> PSU)
+
+Motor Y(wall Side Motor) 
+Pul+ -> SGNL 
+Pul- -> GND 
+Dir+ -> SGNL  
+Dir- -> GND 
+ENA+ -> Floating
+ENA- -> Floating 
+ALM+ -> Floating
+ALM- -> Floating
+GND  -> GND (Blk Cable -> PSU)
+VDC  -> PWR (Red Cable -> PSU)
+
+
+BB (BreadBoard) - All values read as correct way up
+LWR GND Rail -> GND Arduino
+LWR PWR Rail -> 5V Arduino
+
+------------X_Pul+------------
+ROW 60:
+-60J -> Pul+ Motor X2
+-60H -> 30C 		:YELLOW
+Row 00:
+-00J -> Pul+ Motor X1
+-00H -> 30A		:YELLOW
+
+Row 30: 
+-30E -> Pin 30 (X_Pul+)	:YELLOW
+-----------<X_Pul+>-----------
+
+------------X_Dir+------------
+ROW 58:
+-58J -> Pul+ Motor X2
+-58H -> 32C 		:YELLOW
+Row 02:
+-02J -> Pul+ Motor X1
+-02H -> 32A		:YELLOW
+
+Row 32: 
+-32E -> Pin 32 (X_Dir+)	:YELLOW
+-----------<X_Dir+>-----------
+
+
+
+Arduino: 
+Pin 30 = X_Dir+
+Pin 32 = X_Pul+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
