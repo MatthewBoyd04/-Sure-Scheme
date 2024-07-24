@@ -56,21 +56,40 @@ Row 30:
 ------------X_Dir+------------
 ROW 58:
 -58J -> Pul+ Motor X2
--58H -> 32C 		:YELLOW
+-58H -> 32C 		:WHITE
 Row 02:
 -02J -> Pul+ Motor X1
--02H -> 32A		:YELLOW
+-02H -> 32A		:WHITE
 
 Row 32: 
--32E -> Pin 32 (X_Dir+)	:YELLOW
+-32E -> Pin 32 (X_Dir+)	:WHITE
 -----------<X_Dir+>-----------
 
+------------X_ENC_A-----------
+ROW 42:
+-42A -> X_ENC_A		:YELLOW
+-42E -> Pin 42 (X_ENC_A) 		
+-----------<X_ENC_A>----------
+
+------------X_ENC_B-----------
+ROW 44:
+-44A -> X_ENC_B		:WHITE
+-44E -> Pin 44 (X_ENC_B) 		
+-----------<X_ENC_B>----------
+
+------------X_ENC_X-----------
+ROW 46:
+-46A -> X_ENC_B		:BROWN/GREEN
+-46E -> Pin 44 (X_ENC_B) 		
+-----------<X_ENC_X>----------
 
 
 Arduino: 
-Pin 30 = X_Dir+
-Pin 32 = X_Pul+
-
+Pin 11 = X_Pul+ IMPORTANT: MUST BE ON A PWM PIN
+Pin 32 = X_Dir+
+Pin 42 = X_ENC_A
+Pin 44 = X_ENC_B
+Pin 46 = X_ENC_X
 
 
 

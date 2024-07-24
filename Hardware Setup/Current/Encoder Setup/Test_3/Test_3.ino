@@ -1,11 +1,23 @@
 //--Encoder Control--//
-#define encoderPinA 42
-#define encoderPinB 44
-#define encoderPinX 46
+#define A 42
+#define B 44
+#define I 46
 
-volatile long encoderPosition = 0;
-volatile boolean A_set = false;
-volatile boolean B_set = false;
+int countTick = 0;
+int countIndex = 0;
+char precTick = 0;
+char precIndex = 0;
+char tick = 0;
+char tickB =0;
+char index = 0;
+
+
+// Variables for encoder position and previous states
+volatile long encoderPos = 0;
+volatile bool lastA = LOW;
+volatile bool lastB = LOW;
+volatile bool indexDetected = false;
+
 
 //--Motor Control--//
 #define PULSE_X 30
@@ -18,9 +30,11 @@ float x;
 float speed = 0;
 float encoderData[8000];
 
+
+
 void setup() {
   //--Motor Setup--//
-  Serial.begin(115200); //High Speed Baud rate for fast communication
+  Serial.begin(9600); //High Speed Baud rate for fast communication
   Serial.setTimeout(1);
   //Pin Setup  
   pinMode(PULSE_X,OUTPUT);
@@ -31,33 +45,27 @@ void setup() {
   digitalWrite(4,0); //for machine testing
 
   //--Encoder Setup--//
-  pinMode(encoderPinA, INPUT);
-  pinMode(encoderPinB, INPUT);
-  pinMode(encoderPinX, INPUT);
-  digitalWrite(encoderPinA, HIGH);
-  digitalWrite(encoderPinB, HIGH);
-  digitalWrite(encoderPinX, HIGH);
-  attachInterrupt(digitalPinToInterrupt(encoderPinA), doEncoderA, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(encoderPinB), doEncoderB, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(encoderPinX), doEncoderX, RISING);
+  pinMode(A, INPUT);
+  pinMode(B, INPUT);
+  pinMode(I, INPUT);
 
-  
   delay(2000);
-  Serial.println("Ready");
+  Serial.println("Ready"); 
 }
 
 void loop() {
-  
-      if (Serial.available() > 0) 
-      {
-        float newSpeed = Serial.parseFloat(); // Parse integer from serial input
-        if (Serial.read() == '\n') 
-        { 
-          speed = newSpeed; // Update the speed variable
-          Serial.print("New speed set to: ");
-          Serial.println(speed);
-        }
-      }
+
+   //--<Motor Control>--
+   if (Serial.available() > 0) 
+   {
+     float newSpeed = Serial.parseFloat(); // Parse integer from serial input
+     if (Serial.read() == '\n') 
+     { 
+       speed = newSpeed; // Update the speed variable
+       Serial.print("New speed set to: ");
+       Serial.println(speed);
+     }
+   }
       
    float rps = changeDir(speed);
    float dly = rps_to_dly(rps);
@@ -65,15 +73,45 @@ void loop() {
    {
      step(dly);
    }
+   //--<End Of Motor Control>--
 
-  static uint32_t last_serial_check_time = micros();
-  if (micros() - last_serial_check_time >= 100000) 
+  tick = digitalRead(A);
+  tickB = digitalRead(B);
+  index = digitalRead(I);
+  
+  if(tick != precTick)
   {
-    last_serial_check_time += 100000;
-    Serial.print("Encoder Position: ");
-    Serial.println(encoderPosition);
-   
+    if(tick != tickB)
+    {
+      countTick = countTick + tick;
+      precTick = tick;
+    }
+    else
+    {
+      countTick = countTick - tick;
+      precTick = tick;
+    }
+    Serial.print("tick :");
+    Serial.println(countTick);
   }
+  
+  if(index != precIndex)
+  {
+    if(countTick > 0)
+    {
+      countIndex = countIndex + index;
+      precIndex = index;
+    }
+    else
+    {
+      countIndex = countIndex - index;
+      precIndex = index;
+    }
+    countTick = 0;
+    Serial.print("turn :");
+    Serial.println(countIndex);
+  }
+  
 }
 
 

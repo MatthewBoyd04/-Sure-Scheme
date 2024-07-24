@@ -1,6 +1,6 @@
 //--Encoder Control--//
- #define outputA 30
- #define outputB 31
+ #define outputA 42
+ #define outputB 44
 
  int counter = 0; 
  int aState;
@@ -11,8 +11,8 @@ float encoder_data_X = 0;
 float encoder_data_Y = 0;
 
 //--Motor Control--//
-#define PULSE_X 3
-#define DIR_X 7
+#define PULSE_X 30
+#define DIR_X 32
 #define DLY 2500 //1RPS // 60RPM
 #define NUMPULSES 200
 #define DIR1 0 // 1 = cw / 0 = ccw
