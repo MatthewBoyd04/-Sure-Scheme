@@ -83,9 +83,25 @@ ROW 46:
 -46E -> Pin 44 (X_ENC_B) 		
 -----------<X_ENC_X>----------
 
+------------X2_ALM------------
+ROW 60:
+-60A -> X2_ALM		:GREY
+-60E -> Pin 23 (X2_ALM)	:ORANGE	
+-----------<X2_ALM>-----------
+
+------------X1_ALM------------
+ROW 01:
+-01A -> X1_ALM		:GREY
+-01C -> 58A
+ROW 58:
+-58A -> 01C X1_ALM	:GREY
+-58E -> Pin 23 (X1_ALM) :ORANGE	
+-----------<X1_ALM>-----------
 
 Arduino: 
 Pin 11 = X_Pul+ IMPORTANT: MUST BE ON A PWM PIN
+Pin 21 = X2_ALM
+pin 23 = X1_ALM
 Pin 32 = X_Dir+
 Pin 42 = X_ENC_A
 Pin 44 = X_ENC_B
