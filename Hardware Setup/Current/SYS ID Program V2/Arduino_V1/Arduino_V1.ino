@@ -1,25 +1,43 @@
-//--Motor--//
+#include <SPI.h>                                                          //--Motor--//
 #define ALM_X1 22
 #define ALM_X2 23
-#define PULSE_X 11
-#define DIR_X 32
+#define PULSE_X 44 //Actually Y, allow it
+#define DIR_X 32 //Actually Y, allow it
 float speed = 0; //Speed in rotations per second
 float X_Hz = 0;
 
 //--Encoder--//
-#define A 42
-#define B 44
-#define I 46
-int countTick = 0;
-int countIndex = 0;
-char precTick = 0;
-char precIndex = 0;
-char tick = 0;
-char tickB =0;
-char index = 0;
 
+#define Iterations 800 //Iterations of data collection
+#define X_ENC_A 19
+#define X_ENC_B 18
+#define Y_ENC_A 17
+#define Y_ENC_B 16
+#define PPR 200
+#define DPR 8 // 8 mm distance per rev
+#define ENC_PPR 5120
+#define MAXSPD 2 // rev per second
 
-void setup() {
+unsigned long prev_ms = 0, curr_ms = 0;
+float tmp, x_spd, y_spd;
+volatile long x_curr_pos = 0, x_enc_pos = 0, y_curr_pos = 0, y_enc_pos = 0, x_prev_pos = 0, y_prev_pos = 0, diff;
+volatile float x_pos_mm = 0, y_pos_mm = 0;
+
+float X_POS=0, Y_POS=0;
+
+unsigned long timeCurr = 0, prevTime = 0;
+unsigned long diffTime;
+float spdBiasX = 0, spdBiasY = 0;
+
+volatile uint32_t last_speed_check_time = micros();
+unsigned long last_speed_write_time = micros();
+
+float EncoderData[Iterations];
+unsigned long UsTimestamp[Iterations];  
+int TimesRun = 0;
+unsigned long StartTime = 0; 
+
+void setup() { 
   //--Generic--//
   Serial.begin(9600);
   Serial.println("Starting");
@@ -30,11 +48,51 @@ void setup() {
   pinMode(ALM_X1, INPUT);
   pinMode(ALM_X2, INPUT);
 
-  //--Encoder--//
-  pinMode(A, INPUT);
-  pinMode(B, INPUT);
-  pinMode(I, INPUT);
+  pinMode(X_ENC_A,INPUT_PULLUP);
+  pinMode(Y_ENC_A,INPUT_PULLUP);
+
+  pinMode(X_ENC_B,INPUT);
+  pinMode(Y_ENC_B,INPUT);
+  
+  // Enable pull-up resistors if needed
+  //digitalWrite(X_ENC_A, LOW);
+  //digitalWrite(X_ENC_B, LOW);
+  //digitalWrite(Y_ENC_B, LOW);
+  //digitalWrite(Y_ENC_A, LOW);
+  
+  attachInterrupt(digitalPinToInterrupt(X_ENC_A), handleEncX, RISING);
+  attachInterrupt(digitalPinToInterrupt(Y_ENC_A), handleEncY, RISING);
+
 }
+
+void handleEncX() {
+    cli();
+    // Determine direction of rotation based on state of pinB
+    int direction = digitalRead(X_ENC_B);
+    if (direction) {
+        x_enc_pos++; // Clockwise rotation
+    } 
+    else {
+        x_enc_pos--; // Counterclockwise rotation
+    }
+    x_pos_mm = x_enc_pos * (float)DPR / (float)ENC_PPR;
+    sei();
+}
+
+void handleEncY() {
+  cli();
+    // Determine direction of rotation based on state of pinB
+    int direction = digitalRead(Y_ENC_B);
+    if (direction) {
+        y_enc_pos++; // Clockwise rotation
+    } 
+    else {
+        y_enc_pos--; // Counterclockwise rotation
+    }
+    y_pos_mm = y_enc_pos * (float)DPR / (float)ENC_PPR;
+    sei();
+}
+
 
 void loop() {
   //--Failsafe
@@ -64,11 +122,41 @@ void loop() {
        X_Hz = speed_to_Hz(speed);
      }
    }
+   
+//  //--Speed Setting--//
+//  if (millis() - last_speed_write_time >= 500)
+//  {
+//    Serial.println(x_pos_mm);
+/////    Serial.println(y_enc_pos);
+//    last_speed_write_time = millis();
+//  }
 
-  //--Speed Setting--//
-  static uint32_t last_speed_check_time = micros();
   if (micros() - last_speed_check_time >= 1000) 
   {
+    if (speed != 0)
+    {
+      if (TimesRun == 0){StartTime = micros();}
+      
+      EncoderData[TimesRun] = x_pos_mm;
+      UsTimestamp[TimesRun] = micros() - StartTime;
+      TimesRun++;
+
+      if (TimesRun == Iterations){
+        speed = 0;
+        X_Hz = 0;
+        noTone(PULSE_X);
+        for(int j; j < Iterations; j++)
+        {
+          //Serial.print("[POS] ");
+          Serial.print(EncoderData[j]);
+          Serial.print(",");
+          //Serial.print(" [Us] ");
+          Serial.println(UsTimestamp[j]);
+        }
+        }
+    }
+    
+//  Serial.println(y_pos_mm);/
     last_speed_check_time += 1000;
     if (X_Hz < 32)
     {
@@ -81,48 +169,9 @@ void loop() {
       //Serial.println(X_Hz);
       tone(PULSE_X,X_Hz);
     }
+    last_speed_check_time = micros();
   }
 
-  //--Read Encoder--//
-  tick = digitalRead(A);
-  tickB = digitalRead(B);
-  index = digitalRead(I);
-  
-  if(tick != precTick)
-  {
-    if(tick != tickB)
-    {
-      countTick = countTick + tick;
-      precTick = tick;
-    }
-    else
-    {
-      countTick = countTick - tick;
-      precTick = tick;
-    }
-    Serial.print("tick :");
-    Serial.println(countTick);
-  }
-  
-  if(index != precIndex)
-  {
-    if(countTick > 0)
-    {
-      countIndex = countIndex + index;
-      precIndex = index;
-    }
-    else
-    {
-      countIndex = countIndex - index;
-      precIndex = index;
-    }
-    countTick = 0;
-    Serial.print("turn :");
-    Serial.println(countIndex);
-  }
-
-  
-  
 }
 
 float speed_to_Hz(float newSpeed)
